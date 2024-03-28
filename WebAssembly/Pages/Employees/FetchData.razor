@@ -1,0 +1,87 @@
+﻿@page "/employees"
+
+@inject IEmployeeService EmployeeService
+@inject NavigationManager NavigationManager
+
+@using Application.Services
+@using Domain.Entities;
+@using WebAssembly.Components
+
+<h3>Employees</h3>
+
+@if (Employees == null)
+{
+    <text>Loading...</text>
+}
+else if (Employees.Count() == 0)
+{
+    <text>No Records Found.</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Domain.Entities.Employee emp in Employees)
+            {
+                <tr>
+                    <td>@emp.Id</td>
+                    <td>@emp.Name</td>
+                    <td>@emp.Address</td>
+                    <td><a class="btn btn-primary" href="/employee/@emp.Id">Edit</a></td>
+                    <td><button type="button" class="btn btn-danger" @onclick="() => DeleteEmployee(emp.Id)">Delete Employee</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="alert alert-primary" role="alert">
+    Wants to Add New Employee? Click on <a class="btn btn-outline-primary" href="/employee">Add Employee</a>
+</div>
+
+<Confirm @ref="DeleteConfirmation" ConfirmationChanged="ConfirmDelete_Click"
+         ConfirmationMessage=@($"Are you sure you want to delete employee?")>
+</Confirm>
+
+
+@code {
+
+    List<Domain.Entities.Employee>? Employees;
+    protected ConfirmBase DeleteConfirmation { get; set; }
+    private int EmployeeIdToDelete; 
+
+    protected override async Task OnInitializedAsync()
+    {
+        Employees = await EmployeeService.GetAsync();
+    }
+
+    void DeleteEmployee(int id)
+    {
+        EmployeeIdToDelete = (int)id!;
+        DeleteConfirmation.Show();
+    }
+
+    protected async Task ConfirmDelete_Click(bool deleteConfirmed)
+    {
+        if (deleteConfirmed)
+        {
+            var res = await EmployeeService.DeleteAsync(EmployeeIdToDelete);    
+            if(res.Flag==true)
+                Employees = await EmployeeService.GetAsync();
+        }
+    }
+
+    public void Dispose()
+    {
+        EmployeeService.EmployeesChange -= StateHasChanged;
+    }
+}

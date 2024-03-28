@@ -1,0 +1,92 @@
+﻿@page "/employee"
+@page "/employee/{id:int}"
+
+@inject IEmployeeService EmployeeService
+@inject NavigationManager NavigationManager
+
+@using Application.Services
+@using Domain.Entities;
+
+
+@if (Id is null)
+{
+    <PageTitle>Create a new Employee</PageTitle>
+    <h3>Create a new Employee</h3>
+}
+else
+{
+    <PageTitle>Edit @employee.Name</PageTitle>
+    <h3>Edit @employee.Name</h3>
+}
+
+<EditForm Model="employee" OnSubmit="HandleSubmit">
+    @if (formModeUpdating)
+    {
+        <div>
+            <label for="id">Id</label>
+            <InputNumber id="id" @bind-Value="employee.Id" class="form-control" />
+        </div>
+    }
+    <div>
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="employee.Name" class="form-control" />
+    </div>
+    <div>
+        <label for="address">Address</label>
+        <InputText id="address" @bind-Value="employee.Address" class="form-control" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    <button type="button" class="btn btn-danger"
+            @onclick="DeleteEmployee">
+        Delete Employee
+    </button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    bool formModeUpdating = true;
+    string btnText = string.Empty;
+
+    Domain.Entities.Employee employee = new Domain.Entities.Employee { Name = "New Employee" };
+
+    protected override void OnInitialized()
+    {
+        formModeUpdating = Id == null ? false : true;
+        btnText = Id == null ? "Save New Employee" : "Update Employee";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await EmployeeService.GetByIdAsync((int)Id);
+            if (result is not null)
+                employee = result;
+            else
+                NavigationManager.NavigateTo("/employee");
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            await EmployeeService.AddAsync(employee);            
+        }
+        else
+        {
+            await EmployeeService.UpdateAsync(employee);
+        }
+
+        NavigationManager.NavigateTo("/employees");
+    }
+
+    async Task DeleteEmployee()
+    {
+        await EmployeeService.DeleteAsync((int)Id!);
+        NavigationManager.NavigateTo("/employees");
+    }
+}
