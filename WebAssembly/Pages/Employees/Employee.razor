@@ -20,16 +20,16 @@ else
 }
 
 <EditForm Model="employee" OnSubmit="HandleSubmit">
-    @if (formModeUpdating)
+    @* @if (formModeUpdating)
     {
         <div>
             <label for="id">Id</label>
             <InputNumber id="id" @bind-Value="employee.Id" class="form-control" />
         </div>
-    }
+    } *@
     <div>
         <label for="name">Name</label>
-        <InputText id="name" @bind-Value="employee.Name" class="form-control" />
+        <InputText id="name" @bind-Value="employee.Name" class="form-control" disabled="@formModeUpdating" />
     </div>
     <div>
         <label for="address">Address</label>

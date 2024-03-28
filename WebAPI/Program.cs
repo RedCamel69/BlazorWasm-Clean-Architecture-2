@@ -1,7 +1,7 @@
 
 using Application.Interfaces;
-using Application.Services;
 using Infrastructure.Data;
+using Infrastructure.Handlers.EmployeesHandler;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
@@ -24,7 +24,10 @@ namespace WebAPI
             builder.Services.AddDbContext<ApplicationDbContext>
                 (o => o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddScoped<IEmployee, EmployeeRepo>();
+            //builder.Services.AddScoped<IEmployee, EmployeeRepo>();
+            builder.Services.AddMediatR(
+                cfg=>cfg.RegisterServicesFromAssemblies(
+                    typeof(GetEmployeeListHandler).Assembly));
 
             var app = builder.Build();
 
