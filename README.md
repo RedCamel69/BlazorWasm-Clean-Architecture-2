@@ -1,7 +1,7 @@
 
 # BlazorWasm-Clean-Architecture-1
 
-An initial look at structuring a Blazor Wasm solution according to the requirements of clean architecture. This introductory example does not implement CQRS or utilise MediatR.
+An further look at structuring a Blazor Wasm solution according to the requirements of clean architecture, implementing CQRS and utilising MediatR.
 
  
 ## Usage/Examples
